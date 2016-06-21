@@ -24,7 +24,11 @@
 
 #define SETTINGS_FILENAME "/settings.ini"
 
-
+char pump1Time[20];
+char pump2Time[20];
+char pump3Time[20];
+char pump4Time[20];
+char pump5Time[20];
 
 void setup() {
   Serial.begin(9600);
@@ -37,6 +41,8 @@ void setup() {
 }
 
 void loop() {
+  int temp_tt;
+  
   Serial.println(RTC.readDateTime());
 
   // Generate a local now timestamp
@@ -45,6 +51,9 @@ void loop() {
   setTime(RTC.time_h(), RTC.time_m(), RTC.time_s(), RTC.date_d(), RTC.date_m(), RTC.date_y());
 
   // Create a local timestamp for pump 1
+ // temp_tt = getTimeStamp(pump1Time);
+ // Serial.println(temp_tt);
+  
     // Compare
     // If time passed and pump1 flag not set
       // Run Pump
@@ -76,6 +85,17 @@ void loop() {
 
 }
 
+long getTimeStamp(char time_string[20]) 
+{
+  char t_part[2];
+  long t_value;
+
+  memcpy(t_part, &time_string[0], 2);
+  t_value = strtol(t_part, NULL, 10);
+  
+  return(t_value);
+}
+
 int initializeFromFile()
 {
   const size_t bufferLen = 30;
@@ -87,6 +107,7 @@ int initializeFromFile()
   int chipSelect = 8;
   char fileName[] = "SETTINGS.INI";
   
+    
   pinMode(cardDetect, INPUT);
 
   if (!digitalRead(cardDetect))
@@ -108,11 +129,35 @@ int initializeFromFile()
   if (ini.getValue("datetime", "c_set", buffer, bufferLen)) {
     c_set = strtol(buffer, NULL, 10);
   }
-
-  if(c_set == 0) {
-    Serial.println("Don't set datetime");
-  } else {
   
+  if (ini.getValue("pumps", "pump1_time", buffer, bufferLen)) {
+    strcpy(pump1Time, buffer);
+    Serial.println("Pump 1 Time"); Serial.println(pump1Time);
+   } else {
+    Serial.println("No pump1 info");
+   }
+ /*
+   if (ini.getValue("pumps", "pump2_time", buffer, bufferLen)) {
+    strcpy(pump2Time, buffer);
+    Serial.print("Pump 2 Time"); Serial.println(pump2Time);
+   }
+   if (ini.getValue("pumps", "pump3_time", buffer, bufferLen)) {
+    strcpy(pump3Time, buffer);
+    Serial.print("Pump 3 Time"); Serial.println(pump3Time);
+   }
+   if (ini.getValue("pumps", "pump4_time", buffer, bufferLen)) {
+    strcpy(pump4Time, buffer);
+    Serial.print("Pump 4 Time"); Serial.println(pump4Time);
+   }
+   if (ini.getValue("pumps", "pump5_time", buffer, bufferLen)) {
+    strcpy(pump5Time, buffer);
+    Serial.print("Pump 5 Time"); Serial.println(pump5Time);
+   }
+  */
+
+ 
+
+ 
     if (ini.getValue("datetime", "c_month", buffer, bufferLen)) {
       c_month = strtol(buffer, NULL, 10);
     }
@@ -139,10 +184,15 @@ int initializeFromFile()
     sprintf(log, "Setting datetime: %d/%d/%d %d:%d:%d", c_month, c_day, c_year, c_hour, c_min, c_sec);
   
     Serial.println(log);
-    
+
+
+ if(c_set == 0) {
+    Serial.println("Don't set datetime");
+  } else {
     // Day month year hour minute second
     RTC.setDateTime(c_day, c_month, c_year, c_hour, c_min, c_sec);
   }
+  
   Serial.println(RTC.readDateTime());
 
   ini.close();
@@ -180,6 +230,15 @@ int initializeFromFile()
     settingsFile.println(log);
     sprintf(log, "c_second = %d", c_sec);
     settingsFile.println(log);
+    /*
+    settingsFile.println("[pumps]");
+    sprintf(log, "pump1_time = %S", pump1Time);
+    sprintf(log, "pump2_time = %S", pump2Time);
+    sprintf(log, "pump3_time = %S", pump3Time);
+    sprintf(log, "pump4_time = %S", pump4Time);
+    sprintf(log, "pump5_time = %S", pump5Time);
+    */
+
     settingsFile.close();
   } else {
     Serial.println("Could not open settings file for writing.");
