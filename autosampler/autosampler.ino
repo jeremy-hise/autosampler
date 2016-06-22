@@ -49,52 +49,55 @@ void setup() {
 void loop() {
   time_t ts_now, ts_test;
 
-  
   Serial.println(RTC.readDateTime());
-
+  
   // Generate a local now timestamp
   setTime(RTC.time_h(), RTC.time_m(), RTC.time_s(), RTC.date_d(), RTC.date_m(), RTC.date_y());
   
   // Create a local timestamp for pump 1
   ts_now = now();
+
+  Serial.print("TN: ");
+  Serial.println(ts_now);
+
+  Serial.print("P1: ");
+  Serial.println(getTimeStamp(pump1Time));
+  Serial.print("P2: ");
+  Serial.println(getTimeStamp(pump2Time));
+  Serial.print("P3: ");
+  Serial.println(getTimeStamp(pump3Time));
+  Serial.print("P4: ");
+  Serial.println(getTimeStamp(pump4Time));
+  Serial.print("P5: ");
+  Serial.println(getTimeStamp(pump5Time));
   
-    // Compare
-    // If time passed and pump1 flag not set
-    if(ts_now > getTimeStamp(pump1Time) && p1 == 0) {
-      // Run Pump
-      p1 = 1;
-      runPump(1);
-    }
+  
+  if(ts_now >= getTimeStamp(pump1Time) && (p1 == 0)) {
+    p1 = 1;
+    runPump(1);
+  }
       
-    if(ts_now > getTimeStamp(pump2Time) && p2 == 0) {
-      // Run Pump
-      p2 = 1;
-      runPump(2);
-    }
+  if(ts_now >= getTimeStamp(pump2Time) && (p2 == 0)) {
+    p2 = 1;
+    runPump(2);
+  }
 
-    if(ts_now > getTimeStamp(pump3Time) && p3 == 0) {
-      // Run Pump
-      p3 = 1;
-      runPump(3);
-    }
+  if(ts_now >= getTimeStamp(pump3Time) && (p3 == 0)) {
+    p3 = 1;
+    runPump(3);
+  }
 
-    if(ts_now > getTimeStamp(pump4Time) && p4 == 0) {
-      // Run Pump
-      p4 = 1;
-      runPump(4);
-    }
+  if(ts_now >= getTimeStamp(pump4Time) && (p4 == 0)) {
+    p4 = 1;
+    runPump(4);
+  }
 
-    if(ts_now > getTimeStamp(pump5Time) && p5 == 0) {
-      // Run Pump
-      p5 = 1;
-      runPump(5);
-    }
+  if(ts_now >= getTimeStamp(pump5Time) && (p5 == 0)) {
+    p5 = 1;
+    runPump(5);
+  }
   
-
-
   delay(5000);
-
-
 }
 
 void runPump(int pump_id)
@@ -103,41 +106,18 @@ void runPump(int pump_id)
   Serial.println(pump_id);
 }
 
-void handleDateTimeString(char time_string[20], long& t_hour, long& t_min, long& t_sec, long& t_day, long& t_month, long& t_year)
-{
 
-  char t_part[2];
-  
-
-  memcpy(t_part, &time_string[0], 2);
-  t_hour = strtol(t_part, NULL, 10);
-
-  memcpy(t_part, &time_string[3], 2);
-  t_min = strtol(t_part, NULL, 10);
-  
-  memcpy(t_part, &time_string[6], 2);
-  t_sec = strtol(t_part, NULL, 10);
-
-  memcpy(t_part, &time_string[9], 2);
-  t_day = strtol(t_part, NULL, 10);
-
-  memcpy(t_part, &time_string[12], 2);
-  t_month = strtol(t_part, NULL, 10);
-
-  memcpy(t_part, &time_string[15], 4);
-  t_year = strtol(t_part, NULL, 10);
-
-
-}
 
 long getTimeStamp(char time_string[20]) 
 {
-  char t_part[2];
-  long t_hour, t_min, t_sec, t_month, t_day, t_year;
+  char t_part[2] = {' ',' '};
+  int t_hour, t_min, t_sec, t_month, t_day, t_year;
   time_t ts;
 
+
   memcpy(t_part, &time_string[0], 2);
-  t_hour = strtol(t_part, NULL, 10);
+  t_hour = atoi(t_part);
+
 
   memcpy(t_part, &time_string[3], 2);
   t_min = strtol(t_part, NULL, 10);
@@ -153,7 +133,7 @@ long getTimeStamp(char time_string[20])
 
   memcpy(t_part, &time_string[15], 4);
   t_year = strtol(t_part, NULL, 10);
-
+ 
   setTime(t_hour, t_min, t_sec, t_day, t_month, t_year);
   ts = now();
   return(ts);
@@ -194,33 +174,26 @@ int initializeFromFile()
   
   if(ini.getValue("datetime", "current_time", buffer, bufferLen)) {
     strcpy(currentTime, buffer);
-    Serial.print("Current time: ");
-    Serial.println(currentTime);
   }
   
   if (ini.getValue("pumps", "pump1_time", buffer, bufferLen)) {
     strcpy(pump1Time, buffer);
-    Serial.print("P1 "); Serial.println(pump1Time);
    }
 
    if (ini.getValue("pumps", "pump2_time", buffer, bufferLen)) {
     strcpy(pump2Time, buffer);
-    Serial.print("P2 "); Serial.println(pump2Time);
    }
    
    if (ini.getValue("pumps", "pump3_time", buffer, bufferLen)) {
     strcpy(pump3Time, buffer);
-    Serial.print("P3 "); Serial.println(pump3Time);
    }
    
    if (ini.getValue("pumps", "pump4_time", buffer, bufferLen)) {
     strcpy(pump4Time, buffer);
-    Serial.print("P4 "); Serial.println(pump4Time);
    }
    
    if (ini.getValue("pumps", "pump5_time", buffer, bufferLen)) {
     strcpy(pump5Time, buffer);
-    Serial.print("P5 "); Serial.println(pump5Time);
    }
  
   ini.close();
