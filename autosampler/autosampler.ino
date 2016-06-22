@@ -1,8 +1,3 @@
-#include <Arduino.h>
-
-#include <Ethernet.h>
-
-
 /**
  * Autosampler
  * 
@@ -10,9 +5,14 @@
  * jeremy.hise@gmail.com
  * 
  * 
- * 
+ * External dependancies
+ * IniFile https://github.com/stevemarple/IniFile
+ * Time By Michael Margolis
+ * DS3234 https://github.com/rodan/ds3234
  * 
  */
+#include <Ethernet.h>
+
 #include <Time.h>
 #include <TimeLib.h>
 
@@ -37,27 +37,23 @@ char pump5Time[20];
 
 void setup() {
   Serial.begin(9600);
-   RTC.configure(3,4,5,6);
+  RTC.configure(3,4,5,6);
   initializeFromFile();
-  
-  time_t ttime = now();
-  Serial.print("Month is: " );
-  Serial.println(month(ttime));
 }
 
 void loop() {
-  int temp_tt;
+  time_t ts_now;
   
   Serial.println(RTC.readDateTime());
 
   // Generate a local now timestamp
-  Serial.print("Year is: ");
-  Serial.println(RTC.date_y());
+  
   setTime(RTC.time_h(), RTC.time_m(), RTC.time_s(), RTC.date_d(), RTC.date_m(), RTC.date_y());
-
+  
   // Create a local timestamp for pump 1
- // temp_tt = getTimeStamp(pump1Time);
- // Serial.println(temp_tt);
+  ts_now = now();
+  Serial.print(" ts_now = ");
+  Serial.println(ts_now);
   
     // Compare
     // If time passed and pump1 flag not set
@@ -103,7 +99,7 @@ long getTimeStamp(char time_string[20])
 
 int initializeFromFile()
 {
-  const size_t bufferLen = 30;
+  const size_t bufferLen = 35;
   char buffer[bufferLen];
   char log[bufferLen];
   int c_month,c_day,c_year,c_hour,c_min,c_sec, c_set;
@@ -186,18 +182,18 @@ int initializeFromFile()
     if (ini.getValue("datetime", "c_second", buffer, bufferLen)) {
       c_sec = strtol(buffer, NULL, 10);
     }
-    sprintf(log, "Setting datetime: %d/%d/%d %d:%d:%d", c_month, c_day, c_year, c_hour, c_min, c_sec);
-  
-    Serial.println(log);
-
 
  if(c_set == 0) {
     Serial.println("Don't set datetime");
   } else {
+    sprintf(log, "Setting datetime: %d/%d/%d %d:%d:%d", c_month, c_day, c_year, c_hour, c_min, c_sec);
+    Serial.println(log);
+    
     // Day month year hour minute second
     RTC.setDateTime(c_day, c_month, c_year, c_hour, c_min, c_sec);
+    
   }
-  
+  Serial.print("Initial datetime");
   Serial.println(RTC.readDateTime());
 
   ini.close();
@@ -216,6 +212,7 @@ int initializeFromFile()
     Serial.println(F(" doesn't exist. Creating."));
   }
 
+/*
   SD.remove(fileName);
 
   settingsFile = SD.open(fileName, FILE_WRITE);
@@ -235,21 +232,21 @@ int initializeFromFile()
     settingsFile.println(log);
     sprintf(log, "c_second = %d", c_sec);
     settingsFile.println(log);
-    /*
+    
     settingsFile.println("[pumps]");
     sprintf(log, "pump1_time = %S", pump1Time);
     sprintf(log, "pump2_time = %S", pump2Time);
     sprintf(log, "pump3_time = %S", pump3Time);
     sprintf(log, "pump4_time = %S", pump4Time);
     sprintf(log, "pump5_time = %S", pump5Time);
-    */
+    
 
     settingsFile.close();
   } else {
     Serial.println("Could not open settings file for writing.");
     return(0);
   }
-  
+  */
 
   return(1);
 }
