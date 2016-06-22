@@ -103,13 +103,11 @@ void runPump(int pump_id)
   Serial.println(pump_id);
 }
 
-void handleDateTimeString(char time_string[20], int &t_hour, int &t_min, int &t_sec, int &t_day, int &t_month, int &t_year)
+void handleDateTimeString(char time_string[20], long& t_hour, long& t_min, long& t_sec, long& t_day, long& t_month, long& t_year)
 {
 
   char t_part[2];
   
-  Serial.print("Handling ");
-  Serial.println(time_string);
 
   memcpy(t_part, &time_string[0], 2);
   t_hour = strtol(t_part, NULL, 10);
@@ -166,7 +164,7 @@ int initializeFromFile()
   const size_t bufferLen = 40;
   char buffer[bufferLen];
   char log[bufferLen];
-  int c_month,c_day,c_year,c_hour,c_min,c_sec, c_set;
+  long c_month,c_day,c_year,c_hour,c_min,c_sec, c_set;
   File settingsFile;
   int cardDetect = 9;
   int chipSelect = 8;
@@ -230,12 +228,36 @@ int initializeFromFile()
  if(c_set == 0) {
     Serial.println("Don't set datetime");
   } else {
-    handleDateTimeString(currentTime, c_hour, c_min, c_sec, c_day, c_month, c_year);
-    sprintf(log, "Setting datetime: %d/%d/%d %d:%d:%d", c_month, c_day, c_year, c_hour, c_min, c_sec);
-    Serial.println(log);
+   // handleDateTimeString(currentTime, c_hour, c_min, c_sec, c_day, c_month, c_year);
+            char t_part[2];
+
+            
+          Serial.print(" Handling: ");
+          Serial.print(currentTime);
+          
+            memcpy(t_part, &currentTime[0], 2);
+            c_hour = strtol(t_part, NULL, 10);
+          
+            memcpy(t_part, &currentTime[3], 2);
+            c_min = strtol(t_part, NULL, 10);
+            
+            memcpy(t_part, &currentTime[6], 2);
+            c_sec = strtol(t_part, NULL, 10);
+          
+            memcpy(t_part, &currentTime[9], 2);
+            c_day = strtol(t_part, NULL, 10);
+          
+            memcpy(t_part, &currentTime[12], 2);
+            c_month = strtol(t_part, NULL, 10);
+          
+            memcpy(t_part, &currentTime[15], 4);
+            c_year = strtol(t_part, NULL, 10);
     
     // Day month year hour minute second
     RTC.setDateTime(c_day, c_month, c_year, c_hour, c_min, c_sec);
+
+
+    Serial.println(": Done setting");
   }
 
   Serial.println(RTC.readDateTime());
@@ -252,7 +274,7 @@ int initializeFromFile()
       sprintf(log, "c_set = %d", 0);
       settingsFile.println(log);
       sprintf(log, "current_time = %s", currentTime);
-      
+      settingsFile.println(log);
       settingsFile.println("[pumps]");
       sprintf(log, "pump1_time = %s", pump1Time);
       settingsFile.println(log);
