@@ -27,7 +27,9 @@
 #define PUMP4_PIN A3
 #define PUMP5_PIN A4
 
-#define SETTINGS_FILENAME "/settings.ini"
+#define PUMP_RUN_TIME 10
+
+#define SETTINGS_FILENAME "/SETTINGS.INI"
 
 char pump1Time[20];
 char pump2Time[20];
@@ -43,6 +45,12 @@ void setup() {
   Serial.begin(9600);
   RTC.configure(3,4,5,6);
   p1 = p2 = p3 = p4 = p5 = 0;
+  pinMode(PUMP1_PIN, OUTPUT); analogWrite(PUMP1_PIN, LOW);
+  pinMode(PUMP2_PIN, OUTPUT); analogWrite(PUMP2_PIN, LOW);
+  pinMode(PUMP3_PIN, OUTPUT); analogWrite(PUMP3_PIN, LOW);
+  pinMode(PUMP4_PIN, OUTPUT); analogWrite(PUMP4_PIN, LOW);
+  pinMode(PUMP5_PIN, OUTPUT); analogWrite(PUMP5_PIN, LOW);
+  
   initializeFromFile();
 }
 
@@ -103,7 +111,37 @@ void loop() {
 void runPump(int pump_id)
 {
   Serial.print("Running pump ");
-  Serial.println(pump_id);
+  if(pump_id == 1) {
+    analogWrite(PUMP1_PIN,255);
+    Serial.println(pump_id);
+    delay(PUMP_RUN_TIME * 1000);
+    Serial.println("D");
+    analogWrite(PUMP1_PIN, 0);
+  } else if (pump_id == 2) {
+    analogWrite(PUMP2_PIN,255);
+    Serial.println(pump_id);
+    delay(PUMP_RUN_TIME * 1000);
+    Serial.println("D");
+    analogWrite(PUMP2_PIN, 0);    
+  } else if (pump_id == 3) {
+    analogWrite(PUMP3_PIN,255);
+    Serial.println(pump_id);
+    delay(PUMP_RUN_TIME * 1000);
+    Serial.println("D");
+    analogWrite(PUMP3_PIN, 0);    
+  } else if (pump_id == 4) {
+    analogWrite(PUMP4_PIN,255);
+    Serial.println(pump_id);
+    delay(PUMP_RUN_TIME * 1000);
+    Serial.println("D");
+    analogWrite(PUMP4_PIN, 0);    
+  } else if (pump_id == 5) {
+    analogWrite(PUMP5_PIN,255);
+    Serial.println(pump_id);
+    delay(PUMP_RUN_TIME * 1000);
+    Serial.println("D");
+    analogWrite(PUMP5_PIN, 0);    
+  }
 }
 
 
@@ -201,31 +239,26 @@ int initializeFromFile()
  if(c_set == 0) {
     Serial.println("Don't set datetime");
   } else {
-   // handleDateTimeString(currentTime, c_hour, c_min, c_sec, c_day, c_month, c_year);
-            char t_part[2];
-
-            
-          Serial.print(" Handling: ");
-          Serial.print(currentTime);
-          
-            memcpy(t_part, &currentTime[0], 2);
-            c_hour = strtol(t_part, NULL, 10);
-          
-            memcpy(t_part, &currentTime[3], 2);
-            c_min = strtol(t_part, NULL, 10);
-            
-            memcpy(t_part, &currentTime[6], 2);
-            c_sec = strtol(t_part, NULL, 10);
-          
-            memcpy(t_part, &currentTime[9], 2);
-            c_day = strtol(t_part, NULL, 10);
-          
-            memcpy(t_part, &currentTime[12], 2);
-            c_month = strtol(t_part, NULL, 10);
-          
-            memcpy(t_part, &currentTime[15], 4);
-            c_year = strtol(t_part, NULL, 10);
+    char t_part[2];
     
+    memcpy(t_part, &currentTime[0], 2);
+    c_hour = strtol(t_part, NULL, 10);
+  
+    memcpy(t_part, &currentTime[3], 2);
+    c_min = strtol(t_part, NULL, 10);
+    
+    memcpy(t_part, &currentTime[6], 2);
+    c_sec = strtol(t_part, NULL, 10);
+  
+    memcpy(t_part, &currentTime[9], 2);
+    c_day = strtol(t_part, NULL, 10);
+  
+    memcpy(t_part, &currentTime[12], 2);
+    c_month = strtol(t_part, NULL, 10);
+  
+    memcpy(t_part, &currentTime[15], 4);
+    c_year = strtol(t_part, NULL, 10);
+  
     // Day month year hour minute second
     RTC.setDateTime(c_day, c_month, c_year, c_hour, c_min, c_sec);
 
