@@ -26,8 +26,9 @@
 #define PUMP3_PIN A2
 #define PUMP4_PIN A3
 #define PUMP5_PIN A4
+#define BUTTON_PIN 2
 
-#define PUMP_RUN_TIME 10
+#define PUMP_RUN_TIME 1 // Seconds
 
 #define SETTINGS_FILENAME "/SETTINGS.INI"
 
@@ -40,6 +41,7 @@ char currentTime[20];
 
 int p1, p2, p3, p4, p5;
 
+boolean runPumpTrigger = false;
 
 void setup() {
   Serial.begin(9600);
@@ -50,8 +52,12 @@ void setup() {
   pinMode(PUMP3_PIN, OUTPUT); analogWrite(PUMP3_PIN, LOW);
   pinMode(PUMP4_PIN, OUTPUT); analogWrite(PUMP4_PIN, LOW);
   pinMode(PUMP5_PIN, OUTPUT); analogWrite(PUMP5_PIN, LOW);
+  pinMode(BUTTON_PIN, INPUT);
   
   initializeFromFile();
+
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), triggerRunAllPumps, RISING);
+
 }
 
 void loop() {
@@ -79,6 +85,9 @@ void loop() {
   Serial.print("P5: ");
   Serial.println(getTimeStamp(pump5Time));
   
+  if(runPumpTrigger) {
+    runAllPumps();
+  }
   
   if(ts_now >= getTimeStamp(pump1Time) && (p1 == 0)) {
     p1 = 1;
@@ -106,6 +115,19 @@ void loop() {
   }
   
   delay(5000);
+}
+
+void triggerRunAllPumps()
+{
+  runPumpTrigger = true;
+}
+
+void runAllPumps()
+{
+  runPumpTrigger = false;
+  for(int i = 1; i < 6; i++) {
+    runPump(i);
+  }
 }
 
 void runPump(int pump_id)

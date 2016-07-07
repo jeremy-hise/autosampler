@@ -1,0 +1,36 @@
+Logger Unit
+1 Outdoor Box Large
+1 Arduino/Redboard
+1 Sparkfun ProtoShiled for arduino
+1 sparkfun PTH protoboard 30
+1 9V battery
+1 9v battery connector
+5 3.5mm headphone jack
+5 3.5mm headphone jack receiver
+5 5v relay (radioshack) (OMR-C-105H)
+1 Micro-SD card reader
+1 Micro-sd card
+1 Realtime clock
+1 realtime clock battery
+4 long stand-offs
+2 short stand-offs
+1 voltaic battery
+jumber wire
+6 short screws (for standoffs)
+1 pushbutton switch
+
+Pump Head
+5 submersible 9V pumps
+15 feet 8 mm (ID) vinyl tubing
+5 lengths of 5 mm (ID) vinyl tubing
+1 4" PVC pipe, 5" inches long
+10 flat head machine screws, #8
+10 machine screw nuts, #8
+5 lengths of 3' jumper wire
+1 PVC Pipe clamp, 4"
+1 filter cloth
+5 collection bottles
+5 elboes
+5 FILTER HOLDER SYRINGE 25MM DELRIN 6/PK
+1 3' wire protector
+1 3' tube protector
