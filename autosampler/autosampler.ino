@@ -28,7 +28,7 @@
 #define PUMP5_PIN A4
 #define BUTTON_PIN 2
 
-#define PUMP_RUN_TIME 1 // Seconds
+#define PUMP_RUN_TIME 30 // Seconds
 
 #define SETTINGS_FILENAME "/SETTINGS.INI"
 
@@ -229,7 +229,6 @@ int initializeFromFile()
   
   if (ini.getValue("datetime", "c_set", buffer, bufferLen)) {
     c_set = strtol(buffer, NULL, 10);
-    c_set = 1;
   }
   
   if(ini.getValue("datetime", "current_time", buffer, bufferLen)) {
