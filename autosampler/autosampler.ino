@@ -29,6 +29,7 @@
 #define BUTTON_PIN 2
 
 #define PUMP_RUN_TIME 30 // Seconds
+#define PUMP_RUN_TIME_TEST 10 // seconds
 
 #define SETTINGS_FILENAME "/SETTINGS.INI"
 
@@ -38,15 +39,17 @@ char pump3Time[20];
 char pump4Time[20];
 char pump5Time[20];
 char currentTime[20];
+int pump_run_time;
 
 int p1, p2, p3, p4, p5;
 
-boolean runPumpTrigger = false;
+volatile boolean runPumpTrigger = false;
 
 void setup() {
   Serial.begin(9600);
   RTC.configure(3,4,5,6);
   p1 = p2 = p3 = p4 = p5 = 0;
+  pump_run_time = PUMP_RUN_TIME;
   pinMode(PUMP1_PIN, OUTPUT); analogWrite(PUMP1_PIN, LOW);
   pinMode(PUMP2_PIN, OUTPUT); analogWrite(PUMP2_PIN, LOW);
   pinMode(PUMP3_PIN, OUTPUT); analogWrite(PUMP3_PIN, LOW);
@@ -73,7 +76,6 @@ void loop() {
 
   Serial.print("TN: ");
   Serial.println(ts_now);
-
   Serial.print("P1: ");
   Serial.println(getTimeStamp(pump1Time));
   Serial.print("P2: ");
@@ -84,6 +86,7 @@ void loop() {
   Serial.println(getTimeStamp(pump4Time));
   Serial.print("P5: ");
   Serial.println(getTimeStamp(pump5Time));
+
   
   if(runPumpTrigger) {
     runAllPumps();
@@ -91,27 +94,27 @@ void loop() {
   
   if(ts_now >= getTimeStamp(pump1Time) && (p1 == 0)) {
     p1 = 1;
-    runPump(1);
+    runPump(1, pump_run_time);
   }
       
   if(ts_now >= getTimeStamp(pump2Time) && (p2 == 0)) {
     p2 = 1;
-    runPump(2);
+    runPump(2, pump_run_time);
   }
 
   if(ts_now >= getTimeStamp(pump3Time) && (p3 == 0)) {
     p3 = 1;
-    runPump(3);
+    runPump(3, pump_run_time);
   }
 
   if(ts_now >= getTimeStamp(pump4Time) && (p4 == 0)) {
     p4 = 1;
-    runPump(4);
+    runPump(4, pump_run_time);
   }
 
   if(ts_now >= getTimeStamp(pump5Time) && (p5 == 0)) {
     p5 = 1;
-    runPump(5);
+    runPump(5, pump_run_time);
   }
   
   delay(5000);
@@ -125,42 +128,44 @@ void triggerRunAllPumps()
 void runAllPumps()
 {
   runPumpTrigger = false;
+  
   for(int i = 1; i < 6; i++) {
-    runPump(i);
+    runPump(i, PUMP_RUN_TIME_TEST);
   }
+  
 }
 
-void runPump(int pump_id)
+void runPump(int pump_id, int duration)
 {
   Serial.print("Running pump ");
   if(pump_id == 1) {
     analogWrite(PUMP1_PIN,255);
     Serial.println(pump_id);
-    delay(PUMP_RUN_TIME * 1000);
+    delay(duration * 1000);
     Serial.println("D");
     analogWrite(PUMP1_PIN, 0);
   } else if (pump_id == 2) {
     analogWrite(PUMP2_PIN,255);
     Serial.println(pump_id);
-    delay(PUMP_RUN_TIME * 1000);
+    delay(duration * 1000);
     Serial.println("D");
     analogWrite(PUMP2_PIN, 0);    
   } else if (pump_id == 3) {
     analogWrite(PUMP3_PIN,255);
     Serial.println(pump_id);
-    delay(PUMP_RUN_TIME * 1000);
+    delay(duration * 1000);
     Serial.println("D");
     analogWrite(PUMP3_PIN, 0);    
   } else if (pump_id == 4) {
     analogWrite(PUMP4_PIN,255);
     Serial.println(pump_id);
-    delay(PUMP_RUN_TIME * 1000);
+    delay(duration * 1000);
     Serial.println("D");
     analogWrite(PUMP4_PIN, 0);    
   } else if (pump_id == 5) {
     analogWrite(PUMP5_PIN,255);
     Serial.println(pump_id);
-    delay(PUMP_RUN_TIME * 1000);
+    delay(duration * 1000);
     Serial.println("D");
     analogWrite(PUMP5_PIN, 0);    
   }
@@ -254,6 +259,10 @@ int initializeFromFile()
    if (ini.getValue("pumps", "pump5_time", buffer, bufferLen)) {
     strcpy(pump5Time, buffer);
    }
+
+  if (ini.getValue("pumps", "pump_duration", buffer, bufferLen)) {
+    pump_run_time = strtol(buffer, NULL, 10);
+  }
  
   ini.close();
 
@@ -312,7 +321,9 @@ int initializeFromFile()
       sprintf(log, "pump4_time = %s", pump4Time);
       settingsFile.println(log);
       sprintf(log, "pump5_time = %s", pump5Time);
-      settingsFile.println(log);    
+      settingsFile.println(log);
+      sprintf(log, "pump_duration = %d", pump_run_time);
+      settingsFile.println(log); 
   
       settingsFile.close();
     } 
