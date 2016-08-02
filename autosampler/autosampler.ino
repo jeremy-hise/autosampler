@@ -40,6 +40,7 @@ char pump4Time[20];
 char pump5Time[20];
 char currentTime[20];
 int pump_run_time;
+int flush_button_state = 0;
 
 int p1, p2, p3, p4, p5;
 
@@ -59,7 +60,15 @@ void setup() {
   
   initializeFromFile();
 
-  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), triggerRunAllPumps, RISING);
+  /* 
+   * This attachment is being removed because it is being fired when the pumps
+   * are under load. To fix that, you need to look at how the relays are being
+   * connected to the arduino. There is some resistance needed there. A test with
+   * 220 Ohm resistance didn't do the work. Someone suggested 1K, which has not been
+   * tried. This handler is now being called within the main loop.
+   * attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), triggerRunAllPumps, RISING); 
+   */
+  
 
 }
 
@@ -87,8 +96,9 @@ void loop() {
   Serial.print("P5: ");
   Serial.println(getTimeStamp(pump5Time));
 
+  flush_button_state = digitalRead(BUTTON_PIN);
   
-  if(runPumpTrigger) {
+  if(flush_button_state == HIGH) {
     runAllPumps();
   }
   
